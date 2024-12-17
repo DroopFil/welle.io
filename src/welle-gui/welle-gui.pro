@@ -2,19 +2,19 @@ include(../backend.pri)
 
 TEMPLATE = app
 TARGET = welle-io
-QT += quickcontrols2 qml quick charts multimedia dbus
+
+CUR_VERSION = $$cat(_current_version, lines)
+if(!contains(CUR_VERSION, .*[a-zA-Z\-\ ].*)) {
+    # Set VERSION only if it respects the format x.y.z.t (otherwise, on windows build would fail
+    VERSION = $$CUR_VERSION
+}
+DEFINES += CURRENT_VERSION=$$shell_quote(\"$$CUR_VERSION\")
+
+QT += core gui quickcontrols2 qml quick charts multimedia dbus
 
 RC_ICONS   =    icons/icon.ico
 RESOURCES +=    resources.qrc
 DISTFILES +=    \
-    android/AndroidManifest.xml \
-    android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradlew \
-    android/java/io/welle/welle/InstallRtlTcpAndro.java \
-    android/res/values/libs.xml \
-    android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradlew.bat \
     QML/MainView.qml \
     QML/RadioView.qml \
     QML/ExpertView.qml \
@@ -57,17 +57,7 @@ DISTFILES +=    \
     QML/components/WSpectrum.qml \
     QML/components/WMenu.qml \
     QML/expertviews/ServiceDetails.qml \
-    QML/components/WDialog.qml \
-    android/AndroidManifest.xml \
-    android/build.gradle \
-    android/gradle/wrapper/gradle-wrapper.jar \
-    android/gradle/wrapper/gradle-wrapper.properties \
-    android/gradle.properties \
-    android/gradlew \
-    android/gradlew.bat \
-    android/res/values/libs.xml
-
-ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+    QML/components/WDialog.qml
 
 TRANSLATIONS = i18n/de_DE.ts \
     i18n/it_IT.ts \
@@ -111,9 +101,25 @@ SOURCES += \
     waterfallitem.cpp
 
 android {
-    QT += androidextras
+    # DEPRECATED. Since Qt6.3, android build is managed by cmake. See CMakeLists.txt
+    # It is possible to produce MULTI ABI apks, only from Qt6.3 and only with cmake
+    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+    DISTFILES += \
+        android/AndroidManifest.xml \
+        android/build.gradle \
+        android/res/values/libs.xml
+
+    DISTFILES += \
+        android/java/io/welle/welle/InstallRtlTcpAndro.java
+
+    ANDROID_VERSION_NAME = "$$CUR_VERSION"
+    ANDROID_VERSION_CODE = "24"
+
+    QT += core-private # For QtAndroidPrivate
     QT += svg
     QT += multimediawidgets
+    QT += 3dextras # To fix "Skipping "..." It has unmet dependencies: lib/libQt63DExtras_arm64-v8a.so"
     qtHaveModule(virtualkeyboard): QT += virtualkeyboard
 
     HEADERS += android_rtl_sdr.h

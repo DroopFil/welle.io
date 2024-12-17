@@ -23,11 +23,11 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.2
-import QtQuick.Dialogs 1.0
-import Qt.labs.settings 1.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Dialogs
+import QtCore
 
 // Import custom styles
 import "../texts"
@@ -48,7 +48,7 @@ SettingSection {
         id: fileDialog
         title: "Please choose a file"
         onAccepted: {
-            var filePath_tmp = fileDialog.fileUrl.toString()
+            var filePath_tmp = fileDialog.selectedFile.toString()
             if (filePath.text != __getPath(filePath_tmp)) {
                 filePath.text = __getPath(filePath_tmp)
                 __openDevice()

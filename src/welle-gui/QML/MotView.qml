@@ -23,10 +23,11 @@
  *
  */
 
-import QtQuick 2.0
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.3
-import QtQuick.Dialogs 1.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Dialogs
+import QtCore
 
 import "texts"
 import "components"
@@ -43,8 +44,6 @@ ViewBaseFrame {
     FileDialog {
         id: fileDialog
         title: "Please choose a folder"
-        folder: shortcuts.home
-        selectFolder: true
         onAccepted: {
             guiHelper.saveMotImages(fileDialog.folder)
         }
@@ -82,7 +81,7 @@ ViewBaseFrame {
                     model: categoryListModel
 
                     delegate: Item {
-                        width: parent.width
+                        width: parent == null ? undefined : parent.width
                         height: Units.dp(20)
 
                         Rectangle {
@@ -170,7 +169,7 @@ ViewBaseFrame {
 
                             Connections{
                                 target: guiHelper
-                                onMotChanged:{
+                                function onMotChanged(pictureName, categoryTitle, categoryId, slideId) {
                                     latestPictureName = pictureName
 
                                     // Display slide show only of latest tab is select
@@ -220,7 +219,7 @@ ViewBaseFrame {
                                     }
                                 }
 
-                                onMotReseted:{
+                                function onMotReseted() {
                                     slideList = [];
                                     categoryListModel.clear()
                                     _initCategories()

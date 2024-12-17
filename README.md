@@ -1,7 +1,8 @@
 [welle.io](https://www.welle.io)
 =====================
-- Linux, macOS (Travis): [![Travis Build Status](https://app.travis-ci.com/AlbrechtL/welle.io.svg?branch=next)](https://app.travis-ci.com/AlbrechtL/welle.io)
-- Windows (AppVeyor): [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/yipsu95pb4ecdofe?svg=true)](https://ci.appveyor.com/project/AlbrechtL/welle-io)
+- Linux (AppImage): [![Linux build](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/linux.yml)
+- Windows (Installer): [![Windows build](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/windows.yml)
+- Android (APK): [![Android build](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml/badge.svg)](https://github.com/AlbrechtL/welle.io/actions/workflows/android.yml)
 
 This repository contains the implementation of an SDR DAB/DAB+ receiver.  
 Please see the project website https://www.welle.io for a user oriented documentation. 
@@ -27,6 +28,7 @@ Table of contents
     * [Examples](#examples)
   * [Limitations](#limitations)
   * [Development](#development)
+  * [Sponsors](#sponsors)
 
 Download
 ========
@@ -34,6 +36,13 @@ Download
 * [**Windows**, **Linux**, **macOS** and **Android**](http://github.com/AlbrechtL/welle.io/releases) 
 * **Debian** or **Ubuntu** 19.04+
   * `apt install welle.io`, see the /usr/share/doc/welle.io/README.Debian for maintainer notes
+* **Fedora** 34+
+  * Enable [RPM Fusion](https://rpmfusion.org), then install the `welle-io` package:
+    ```shell
+    sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
+    sudo dnf install --refresh welle-io
+    ```
+* **[List of available packages inside Linux distributions](https://repology.org/project/welle.io/versions)**
 * **macOS** (requires [MacPorts](https://www.macports.org/)) 
    * `sudo port install welle.io`
    * `sudo port install welle.io +cli` (if you wish to install also welle-cli)
@@ -111,15 +120,17 @@ Building
 General Information
 ---
 The following libraries and their development files are needed:
-* Qt 5.10 (Qt 5.9 and below is not supported)
+
+* Qt 6.5 (Qt 6.4 and below is not supported)
 * FFTW3f
 * libfaad
 * librtlsdr
 * libusb
 
+
 Debian / Ubuntu Linux
 ---
-This section shows how to compile welle.io on Debian or Ubuntu (tested with Ubuntu 20.04).
+This section shows how to compile welle.io on Debian or Ubuntu (tested with Ubuntu 22.04).
 
 1. Install the base requirements
 
@@ -130,13 +141,13 @@ sudo apt install git build-essential
 2. Install the following non-Qt packages
 
 ```
-sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev
+sudo apt install libfaad-dev libmpg123-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev libpulse-dev libsoapysdr-dev libairspy-dev libmp3lame-dev libflac++-dev
 ```
 
 3. Install the following Qt packages
 
 ```
-sudo apt install libqt5charts5-dev qtbase5-dev qttools5-dev-tools qtquickcontrols2-5-dev libqt5quick5 qtdeclarative5-dev qtmultimedia5-dev libqt5quick5 libqt5multimedia5-plugins qml-module-qt-labs-settings qml-module-qtquick-window2 qml-module-qtquick2 qml-module-qtquick-layouts qml-module-qtquick-dialogs qml-module-qtquick-controls2 qml-module-qtquick-controls qml-module-qtquick-templates2 qml-module-qtquick-privatewidgets qml-module-qtquick-localstorage qml-module-qtcharts qml-module-qtgraphicaleffects qml-module-qt-labs-folderlistmodel qtcreator
+sudo apt install libqt6charts6-dev qt6-base-dev qt6-tools-dev-tools qt6-multimedia-dev qt6-wayland-dev libqt6core5compat6-dev libqt63dquick6 libqt6qml6 qt6-declarative-dev  qml6-module-qtquick-controls qml6-module-qtquick qml6-module-qt5compat-graphicaleffects qml6-module-qtcharts  qml6-module-qtmultimedia qml6-module-qtquick-window qml6-module-qtquick-layouts qml6-module-qtqml-workerscript qml6-module-qtwayland-compositor qml6-module-qtquick-templates qtcreator
 ```
 
 4. Clone welle.io
@@ -155,7 +166,7 @@ A compiled version can be found at the [release page](https://github.com/Albrech
 
 This sections shows how to compile welle.io on Windows 10. Windows 7 should also be possible but is not tested. 
 
-1. Install Qt 5.10 including the Qt Charts and mingw modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
+1. Install Qt 6.2 (MinGW 64-bit) or newer including "Qt Charts" and "Qt 5 Compatibility Module" modules by using the "Qt Online Installer for Windows" https://www.qt.io/download-open-source/
 2. Clone welle.io https://github.com/AlbrechtL/welle.io.git e.g. by using [TortoiseGit](https://tortoisegit.org).
 3. Clone the welle.io Windows libraries https://github.com/AlbrechtL/welle.io-win-libs.git.
 4. Start Qt Creator and open the project file `welle.io.pro` inside the folder "welle.io".
@@ -164,6 +175,7 @@ This sections shows how to compile welle.io on Windows 10. Windows 7 should also
 
 macOS
 ---
+**WARNING: Not tested with Qt 6.2!**
 
 To build for macOS, you have have several options: Either you install everything incl. dependencies manually (not covered here and not recommended) or use Homebrew or MacPorts.
 
@@ -224,6 +236,8 @@ git clone https://github.com/AlbrechtL/welle.io.git
 
 FreeBSD
 ---
+**WARNING: Not tested with Qt 6.2!**
+
 This section describes how to build welle.io from sources on FreeBSD 12.2 and 13.0.
 
 1. You will need the following dependencies, either built from the
@@ -283,6 +297,8 @@ make install
 
 Android
 ---
+**WARNING: Not tested with Qt 6.2!**
+
 A compiled version of welle.io (APK file) can be found at at the [Google Play store](https://play.google.com/store/apps/details?id=io.welle.welle) or at the [release page](https://github.com/AlbrechtL/welle.io/releases).
 
 welle.io uses the "RTL2832U driver" from Martin Marinov, to be found at the [Google play store](https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro) or at [F-droid](https://f-droid.org/packages/marto.rtl_tcp_andro/). Also see ([sources](https://github.com/martinmarinov/rtl_tcp_andro-) or [APK file](https://github.com/martinmarinov/rtl_tcp_andro-/blob/master/app/app-release.apk)). Please note that a recent version of this driver is needed (v3.06 or above), otherwise welle.io will not find your stick.
@@ -340,6 +356,12 @@ With the `-P` option, welle-cli will switch once DLS and a slide were decoded, s
     
 Example: `welle-cli -c 12A -C 1 -w 7979` enables the webserver on channel 12A, please then go to http://localhost:7979/ where you can observe all necessary details for every service ID in the ensemble, see the slideshows, stream the audio (by clicking on the Play-Button), check spectrum, constellation, TII information and CIR peak diagramme.
 
+Streaming output options
+---
+
+By default, `welle-cli` will output in mp3 if in webserver mode.
+With the `-O` option, you can choose between mp3 and flac (lossless) if FLAC support is enabled at build time.
+
 Backend options
 ---
 
@@ -380,3 +402,15 @@ Profiling
 If you build with cmake and add `-DPROFILING=ON`, welle-io will generate a few `.csv` files and a graphviz `.dot` file that can be used
 to analyse and understand which parts of the backend use CPU resources. Use `dot -Tpdf profiling.dot > profiling.pdf` to generate a graph
 visualisation. Search source code for the `PROFILE()` macro to see where the profiling marks are placed.
+
+Sponsors
+===
+
+<table>
+ <tbody>
+  <tr>
+   <td align="center"><img alt="[SignPath]" src="https://avatars.githubusercontent.com/u/34448643" height="30"/></td>
+   <td>Free code signing on Windows provided by <a href="https://signpath.io/?utm_source=foundation&utm_medium=github&utm_campaign=welle">SignPath.io</a>, certificate by <a href="https://signpath.org/?utm_source=foundation&utm_medium=github&utm_campaign=welle">SignPath Foundation</a></td>
+  </tr>
+ </tbody>
+</table>
