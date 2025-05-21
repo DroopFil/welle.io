@@ -5,5 +5,7 @@
 #define GITHASH "unknown"
 #endif
 
-#define CURRENT_VERSION "2.4"
-
+// Fail if CURRENT_VERSION is not defined
+#ifndef CURRENT_VERSION
+#pragma message "CURRENT_VERSION is not defined! Set it in '_current_version' file"
+#endif

@@ -213,6 +213,21 @@ void CRTL_TCP_Client::receiveData(void)
             handleDisconnect();
         }
         else if (ret == -1) {
+#if defined(_WIN32)
+            if (WSAGetLastError() == WSAEINTR ||
+                    WSAGetLastError() == WSAECONNABORTED ||
+                    WSAGetLastError() == WSAENOTSOCK) {
+                continue;
+            }
+            else if (WSAGetLastError() == WSAECONNRESET || WSAGetLastError() == WSAEBADF) {
+                handleDisconnect();
+            }
+            else {
+                std::wstring s;
+                int error = WSAGetLastError();
+                throw std::runtime_error("RTL_TCP_CLIENT recv error: " +  std::to_string(error));
+            }
+#else
             if (errno == EAGAIN) {
                 continue;
             }
@@ -224,8 +239,9 @@ void CRTL_TCP_Client::receiveData(void)
             }
             else {
                 std::string errstr = strerror(errno);
-                throw std::runtime_error("recv: " + errstr);
+                throw std::runtime_error("RTL_TCP_CLIENT recv error: " + errstr);
             }
+#endif
         }
         else {
             read += ret;
@@ -266,6 +282,12 @@ void CRTL_TCP_Client::receiveData(void)
                 dongleInfo.tuner_type << " " << TunerType << std::endl;
             std::clog << "RTL_TCP_CLIENT: Tuner gain count: " <<
                 dongleInfo.tuner_gain_count << std::endl;
+            
+            // Always use manual gain, the AGC is implemented in software
+            setGainMode(1);
+            setGain(currentGainCount);
+            sendRate(INPUT_RATE);
+            sendVFO(frequency);  
         }
         else {
             std::clog << "RTL_TCP_CLIENT: Didn't find the \"RTL0\" magic key." <<
@@ -428,12 +450,6 @@ void CRTL_TCP_Client::receiveAndReconnect()
                 std::clog << "RTL_TCP_CLIENT: Successful connected to server " <<
                     std::endl;
 
-                // Always use manual gain, the AGC is implemented in software
-                setGainMode(1);
-                setGain(currentGainCount);
-                sendRate(INPUT_RATE);
-                sendVFO(frequency);
-
                 if (!agcRunning) {
                     agcRunning = true;
                     agcThread = std::thread(&CRTL_TCP_Client::agcTimer, this);
@@ -499,7 +515,7 @@ void CRTL_TCP_Client::networkBufferCopy()
 
         if(getMyTime() - oldTime_us > 500e3) { // 500 ms
 
-            float bufferFill = (float) sampleNetworkBuffer.GetRingBufferReadAvailable() / sampleNetworkBuffer.GetBufferSize() * 100;
+            // float bufferFill = (float) sampleNetworkBuffer.GetRingBufferReadAvailable() / sampleNetworkBuffer.GetBufferSize() * 100;
             //std::clog << "RTL_TCP_CLIENT: Network buffer fill level " << bufferFill << "%" << std::endl;
 
             oldTime_us = getMyTime();

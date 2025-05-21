@@ -23,10 +23,10 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Layouts 1.1
-import QtQuick.Controls 2.2
-import Qt.labs.settings 1.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtCore
 
 // Import custom styles
 import "../texts"
@@ -53,6 +53,7 @@ SettingSection {
             TextField {
                 id: antenna
                 placeholderText: qsTr("Enter antenna")
+                implicitWidth: 300
             }
         }
 
@@ -65,6 +66,7 @@ SettingSection {
             TextField {
                 id: clockSource
                 placeholderText: qsTr("Enter clock source")
+                implicitWidth: 300
             }
         }
 
@@ -77,6 +79,7 @@ SettingSection {
             TextField {
                 id: driverArgs
                 placeholderText: qsTr("Enter driver arguments")
+                implicitWidth: 300
             }
         }
 

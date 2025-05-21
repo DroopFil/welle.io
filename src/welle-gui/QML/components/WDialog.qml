@@ -23,9 +23,9 @@
  *
  */
  
-import QtQuick 2.0
-import QtQuick.Controls 2.3
-import QtQuick.Layouts 1.1
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 // Import custom styles
 import "../texts"
@@ -52,14 +52,14 @@ Dialog {
                anchors.fill: parent
                ToolButton {
                    font.pixelSize: TextStyle.textStandartSize
-                   font.family: TextStyle.textFont
 
-                   text: qsTr("‹")
+                   icon.name: "back"
+                   icon.width: Units.dp(12)
+                   icon.height: Units.dp(12)
                    onClicked: popup.close()
                }
                Label {
                    font.pixelSize: TextStyle.textStandartSize
-                   font.family: TextStyle.textFont
 
                    text: qsTranslate("MainView", title)
                    elide: Label.ElideRight
@@ -68,7 +68,7 @@ Dialog {
                    Layout.fillWidth: true
                }
            }
-       }
+    }
 
     Flickable {
         id: flick
@@ -81,5 +81,10 @@ Dialog {
         }
 
         ScrollBar.vertical: ScrollBar { id: scrollbar }
+    }
+
+    background: Rectangle {
+        border.color: "grey"
+        border.width: 1
     }
 }

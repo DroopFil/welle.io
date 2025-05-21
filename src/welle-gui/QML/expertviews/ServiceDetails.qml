@@ -23,8 +23,8 @@
  *
  */
  
-import QtQuick 2.2
-import QtQuick.Layouts 1.1
+import QtQuick
+import QtQuick.Layouts
 
 // Import custom styles
 import "../texts"
@@ -133,8 +133,13 @@ ViewBaseFrame {
         }
 
         TextExpert {
+            name: qsTr("Ensemble ID") + ":"
+            text: "0x" + radioController.ensembleId.toString(16)
+        }
+
+        TextExpert {
             name: qsTr("DAB date and time") + ":"
-            text: radioController.dateTime.toUTCString()
+            text: radioController.dateTime.toString()
         }
     }
 }

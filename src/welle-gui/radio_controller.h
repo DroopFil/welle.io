@@ -89,6 +89,7 @@ class CRadioController :
     Q_PROPERTY(QStringList lastChannel MEMBER currentLastChannel NOTIFY lastChannelChanged)
     Q_PROPERTY(QString autoChannel MEMBER autoChannel NOTIFY autoChannelChanged)
     Q_PROPERTY(QString ensemble MEMBER currentEnsembleLabel NOTIFY ensembleChanged)
+    Q_PROPERTY(int ensembleId MEMBER currentEId NOTIFY ensembleIdChanged)
     Q_PROPERTY(int frequency MEMBER currentFrequency NOTIFY frequencyChanged)
     Q_PROPERTY(quint32 service MEMBER currentService NOTIFY stationChanged)
     Q_PROPERTY(quint32 autoService MEMBER autoService NOTIFY autoServiceChanged)
@@ -158,6 +159,7 @@ public:
     virtual void onTIIMeasurement(tii_measurement_t&& m) override;
     virtual void onMessage(message_level_t level, const std::string& text, const std::string& text2 = std::string()) override;
     virtual void onInputFailure(void) override;
+    virtual void onRestartService(void) override;
 
 private:
     void initialise(void);
@@ -246,6 +248,7 @@ private slots:
     void channelTimerTimeout(void);
     void nextChannel(bool isWait);
     void displayDateTime(const dab_date_time_t& dateTime);
+    void restartService(void);
 
 signals:
     void switchToNextChannel(bool isWait);
@@ -282,11 +285,13 @@ signals:
     void volumeChanged(qreal volume);
     void motChanged(mot_file_t);
     void motReseted(void);
+    void restartServiceRequested(void);
 
     void channelChanged();
     void lastChannelChanged();
     void autoChannelChanged(QString autoChannel);
     void ensembleChanged();
+    void ensembleIdChanged();
     void frequencyChanged();
     void stationChanged();
     void autoServiceChanged(quint32 autoService);

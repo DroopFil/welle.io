@@ -82,6 +82,8 @@ enum class message_level_t { Information, Error };
  */
 class RadioControllerInterface {
     public:
+        virtual ~RadioControllerInterface() { }
+
         /* Signal-to-Noise Ratio was calculated. snr is a value in dB. */
         virtual void onSNR(float snr) = 0;
 
@@ -130,12 +132,17 @@ class RadioControllerInterface {
 
         /* The receiver has shutdown due to a failure in the input device */
         virtual void onInputFailure(void) { };
+
+        /* The receiver has to restart due RAW file restart or FIB configuration change*/
+        virtual void onRestartService(void) { };
 };
 
 /* A Programme Handler is associated to each tuned programme in the ensemble.
  */
 class ProgrammeHandlerInterface {
     public:
+        virtual ~ProgrammeHandlerInterface() { }
+
         /* Count the number of frame errors from the MP2, AAC or data
          * decoder.  */
         virtual void onFrameErrors(int frameErrors) = 0;

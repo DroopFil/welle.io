@@ -34,6 +34,7 @@
 #include <QDebug>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QTimeZone>
 #include <stdexcept>
 
 #include "radio_controller.h"
@@ -105,6 +106,9 @@ CRadioController::CRadioController(QVariantMap& commandLineOptions, QObject *par
     qRegisterMetaType<dab_date_time_t>("dab_date_time_t");
     connect(this, &CRadioController::dateTimeUpdated,
             this, &CRadioController::displayDateTime);
+
+    connect(this, &CRadioController::restartServiceRequested,
+            this, &CRadioController::restartService);
 }
 
 CRadioController::~CRadioController()
@@ -301,6 +305,9 @@ void CRadioController::setService(uint32_t service, bool force)
         currentText = "";
         emit textChanged();
 
+        audioMode = "";
+        emit audioModeChanged(audioMode);
+
         emit motReseted();
     }
 }
@@ -363,6 +370,7 @@ void CRadioController::setChannel(QString Channel, bool isScan, bool Force)
         if (!isScan)
             emit autoChannelChanged(autoChannel);
         emit ensembleChanged();
+        emit ensembleIdChanged();
         emit frequencyChanged();
     }
 }
@@ -606,7 +614,7 @@ std::vector<DSPCOMPLEX> CRadioController::getConstellationPoint()
  ********************/
 void CRadioController::initialise(void)
 {
-    for (const auto param_value : deviceParametersString) {
+    for (const auto& param_value : deviceParametersString) {
         device->setDeviceParam(param_value.first, param_value.second);
     }
 
@@ -651,6 +659,7 @@ void CRadioController::resetTechnicalData(void)
     currentEId = 0;
     currentEnsembleLabel = "";
     emit ensembleChanged();
+    emit ensembleIdChanged();
 
     currentFrequency = 0;
     emit frequencyChanged();
@@ -727,12 +736,13 @@ bool CRadioController::deviceRestart()
  *****************/
 void CRadioController::ensembleId(quint16 eId)
 {
-    qDebug() << "RadioController: ID of ensemble:" << eId;
+    qDebug() << "RadioController: ID of ensemble:" << Qt::hex << eId;
 
     if (currentEId == eId)
         return;
 
     currentEId = eId;
+    emit ensembleIdChanged();
 
     //auto label = radioReceiver->getEnsembleLabel();
     //currentEnsembleLabel = QString::fromStdString(label.utf8_label());
@@ -882,10 +892,9 @@ void CRadioController::displayDateTime(const dab_date_time_t& dateTime)
     Date.setDate(dateTime.year, dateTime.month, dateTime.day);
     currentDateTime.setDate(Date);
 
-    int OffsetFromUtc = dateTime.hourOffset * 3600 +
-                        dateTime.minuteOffset * 60;
-    currentDateTime.setOffsetFromUtc(OffsetFromUtc);
-    currentDateTime.setTimeSpec(Qt::OffsetFromUTC);
+    // int OffsetFromUtc = dateTime.hourOffset * 3600 +
+    //                     dateTime.minuteOffset * 60;
+    currentDateTime.setTimeZone(QTimeZone::UTC);
 
     emit dateTimeChanged(currentDateTime);
 }
@@ -1120,4 +1129,14 @@ void CRadioController::onPADLengthError(size_t announced_xpad_len, size_t xpad_l
 void CRadioController::onInputFailure()
 {
     stop();
+}
+
+void CRadioController::onRestartService()
+{
+    emit restartServiceRequested();
+}
+
+void CRadioController::restartService(void)
+{
+    setService(currentService, true);
 }

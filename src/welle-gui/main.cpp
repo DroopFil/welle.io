@@ -41,15 +41,10 @@
 #include <QQmlContext>
 
 #include "version.h"
-#include "dab-constants.h"
 #include "radio_controller.h"
 #include "gui_helper.h"
 #include "debug_output.h"
 #include "waterfallitem.h"
-
-#ifdef __ANDROID__
-    #include <QtAndroid>
-#endif
 
 int main(int argc, char** argv)
 {
@@ -59,19 +54,6 @@ int main(int argc, char** argv)
     QCoreApplication::setOrganizationDomain("welle.io");
     QCoreApplication::setApplicationName("welle.io");
     QCoreApplication::setApplicationVersion(Version);
-
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-//    QCoreApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
-
-    // Disable a lot of new Qml warnings since Qt 5.15:
-    //
-    // Warning: qrc:/QML/settingpages/GlobalSettings.qml:37:5:
-    //   QML Connections: Implicitly defined onFoo properties in Connections are deprecated.
-    //   Use this syntax instead: function onFoo(<arguments>) { ... }
-    //
-    // Ref: https://zren.github.io/2020/06/19/qml-connections-onfoo-warnings-will-get-logging-category-in-qt-5151
-    //
-    qputenv("QT_LOGGING_RULES", "qt.qml.connections=false");
     
     // Handle debug output
     CDebugOutput::init();
@@ -81,6 +63,7 @@ int main(int argc, char** argv)
 
     // Create new QT application
     QApplication app(argc, argv);
+    qDebug() << "main: Platform name" <<  app.platformName();
 
     //Initialise translation
     QTranslator *translator = new QTranslator;
@@ -93,7 +76,7 @@ int main(int argc, char** argv)
     qRegisterMetaType<mot_file_t>("mot_file_t");
 
     // Set icon path
-    QStringList themePaths;
+    QStringList themePaths = QIcon::themeSearchPaths();
     themePaths << ":/icons/welle_io_icons";
     QIcon::setThemeSearchPaths(themePaths);
     QIcon::setThemeName("welle_io_icons");
@@ -103,7 +86,7 @@ int main(int argc, char** argv)
 
     // Handle the command line
     QCommandLineParser optionParser;
-    optionParser.setApplicationDescription("welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U) and airspy. It supports high DPI and touch displays and it runs even on cheap computers like Raspberry Pi 2/3 and 100€ China Windows 10 tablets.");
+    optionParser.setApplicationDescription("welle.io is an open source DAB and DAB+ software defined radio (SDR) with support for rtl-sdr (RTL2832U), airspy and SoapySDR.");
     optionParser.addHelpOption();
     optionParser.addVersionOption();
 
@@ -116,11 +99,6 @@ int main(int argc, char** argv)
         QCoreApplication::translate("main", "Redirects all log output texts to a file."),
         QCoreApplication::translate("main", "File name"));
     optionParser.addOption(LogFileName);
-
-    QCommandLineOption styleName("qqc-style",
-        QCoreApplication::translate("main", "Qt Quick Controls Style for the 1st launch"),
-        QCoreApplication::translate("main", "Style name"));
-    optionParser.addOption(styleName);
 
     //	Process the actual command line arguments given by the user
     optionParser.process(app);
@@ -137,14 +115,9 @@ int main(int argc, char** argv)
     commandLineOptions["dumpFileName"] = optionParser.value(dumpFileName);
 
     CRadioController radioController(commandLineOptions);
-
-    QString styleNameArg = optionParser.value(styleName);
-    //qDebug() << "Command line style_name: " << styleNameArg ;
     
     // Set the Qt Quick Style.
-    QString styleToLoad = CGUIHelper::getQQStyleToLoad(styleNameArg);
-    if (!styleToLoad.isEmpty())
-        QQuickStyle::setStyle(styleToLoad);
+    QQuickStyle::setStyle("Universal");
 
     QSettings settings;
     settings.setValue("version", QString(CURRENT_VERSION));
